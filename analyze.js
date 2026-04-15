@@ -7,30 +7,54 @@ function report_unsafe(report, why){
     console.log(`${report} is Unsafe because ${why}`);
 }
 
-function is_report_safe(report){
+function is_report_safe(report, removed=null, original=null){
     let diff_fail = "do not differ by at least one and at most three";
     let levels = report.split(" ");
+    //if (removed) console.log("trying ", levels, " with removed ", removed);
     for (const [pos, cur_level] of levels.entries()) {
         if (pos==0) continue;
         let last_diff = (cur_level - levels[pos-1]);
         if (Math.abs(last_diff)<1 || Math.abs(last_diff)>3){
-            report_unsafe(report, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
-            return false;
+            if (removed=== null) {
+                removed = levels[pos-1];
+                levels.splice(pos-1, 1);
+                return is_report_safe(levels.join(" "), removed, report);
+            }
+            else {
+                report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
+                return false;
+            }
         }
         if (pos>=levels.length-1) {
             //at end make the classification
-            console.log(`${report} is Safe`);
+            if (original=== null) original = report;
+            console.log(`${original} is Safe with ${removed} removed`);
             return true;
         }
         else{
             let next_diff = (levels[pos+1]- cur_level);
             if (Math.abs(next_diff)<1 || Math.abs(next_diff)>3){
-                report_unsafe(report, `adjacent levels ${cur_level} ${levels[pos+1]} ${diff_fail}`);
-                return false;
+                if (removed=== null) {
+                    removed = levels[pos+1];
+                    levels.splice(pos+1, 1);
+                    return is_report_safe(levels.join(" "), removed, report);
+                }
+                else{
+                    report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos+1]} ${diff_fail}`);
+                    return false;
+                }
             }
             if ((last_diff<=0 && next_diff>=0) || (last_diff>=0 && next_diff<=0)){
-                report_unsafe(report, `all levels are not either all increasing or all decreasing`);
-                return false;
+                if (removed=== null) {
+                    let to_rem = (levels[pos-1]==levels[pos+1]) ? pos-1 : pos;
+                    removed = levels[to_rem];
+                    levels.splice(to_rem, 1);
+                    return is_report_safe(levels.join(" "), removed, report);
+                }
+                else {
+                    report_unsafe(original, `all levels are not either all increasing or all decreasing`);
+                    return false;
+                }
             }
         }
         //otherwise continue could be safe....
@@ -57,7 +81,7 @@ if (require.main === module) {
     return
 }
 
-//for tests
+//for tests //higher than 593
 module.exports = {
     analyze_reports,
     is_report_safe
