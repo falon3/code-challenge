@@ -22,7 +22,7 @@ function is_report_safe(report, removed=null, original=null){
                 return is_report_safe(levels.join(" "), removed, report);
             }
             else {
-                //report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
+                report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
                 return false;
             }
         }
@@ -41,7 +41,7 @@ function is_report_safe(report, removed=null, original=null){
                     return is_report_safe(levels.join(" "), removed, report);
                 }
                 else{
-                    //report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos+1]} ${diff_fail}`);
+                    report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos+1]} ${diff_fail}`);
                     return false;
                 }
             }
@@ -84,7 +84,7 @@ function is_report_safe(report, removed=null, original=null){
                 }
                 else { //put old one back take next?
                     //levels.splice(pos+1, 1, removed);
-                    //report_unsafe(original, `all levels are not either all increasing or all decreasing`);
+                    report_unsafe(original, `all levels are not either all increasing or all decreasing`);
                     return false;
                 }
             }
@@ -113,7 +113,7 @@ if (require.main === module) {
     return
 }
 
-//for tests //higher than 603
+//for tests //higher than 603? but not 605 or 604
 module.exports = {
     analyze_reports,
     is_report_safe
