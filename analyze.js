@@ -46,7 +46,8 @@ function is_report_safe(report, removed=null, original=null){
             }
             if ((last_diff<=0 && next_diff>=0) || (last_diff>=0 && next_diff<=0)){
                 if (removed=== null) {
-                    let to_rem = (levels[pos-1]==levels[pos+1]) ? pos-1 : pos;
+                    let direction = pos < (levels.length - 1) / 2 ? -1 : 1;
+                    let to_rem = (levels[pos-1]==levels[pos+1]) ? pos+(1*direction) : pos;
                     removed = levels[to_rem];
                     levels.splice(to_rem, 1);
                     return is_report_safe(levels.join(" "), removed, report);
@@ -81,7 +82,7 @@ if (require.main === module) {
     return
 }
 
-//for tests //higher than 593
+//for tests //higher than 603
 module.exports = {
     analyze_reports,
     is_report_safe
