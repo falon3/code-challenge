@@ -22,14 +22,14 @@ function is_report_safe(report, removed=null, original=null){
                 return is_report_safe(levels.join(" "), removed, report);
             }
             else {
-                report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
+                //report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
                 return false;
             }
         }
         if (pos>=levels.length-1) {
             //at end make the classification
             if (original=== null) original = report;
-            //console.log(`${original} is Safe with ${removed} removed`);
+            console.log(`${original} is Safe with ${removed} removed`);
             return true;
         }
         else{
@@ -41,7 +41,7 @@ function is_report_safe(report, removed=null, original=null){
                     return is_report_safe(levels.join(" "), removed, report);
                 }
                 else{
-                    report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos+1]} ${diff_fail}`);
+                    //report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos+1]} ${diff_fail}`);
                     return false;
                 }
             }
@@ -82,9 +82,9 @@ function is_report_safe(report, removed=null, original=null){
                     //console.log("should try now, ", levels)
                     return is_report_safe(levels, removed, report);
                 }
-                else { //put old one back take next
+                else { //put old one back take next?
                     //levels.splice(pos+1, 1, removed);
-                    report_unsafe(original, `all levels are not either all increasing or all decreasing`);
+                    //report_unsafe(original, `all levels are not either all increasing or all decreasing`);
                     return false;
                 }
             }
