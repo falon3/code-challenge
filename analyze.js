@@ -41,7 +41,7 @@ function is_report_safe(report, removed=null, original=null){
                 return try_with_removed(levels, pos, report);
             }
             if (original=== null) original = report;
-            //console.log(original); //DEBUG correct
+            //console.log(report); //DEBUG correct
             console.log(`${original} is Safe with ${removed} removed so ${report}`);
             return true;
         }
@@ -51,7 +51,7 @@ function is_report_safe(report, removed=null, original=null){
                     let placement = pos < (levels.length - 1) / 2 ? -1 : 1; //first or 2nd half
                     let to_rem = pos;
                     if (placement<0){ //look ahead if safe
-                        if (pos+2 < levels.length) {
+                        if (pos+2 < levels.length) { //TODO refactor this to be cleaner
                             if ((levels[pos+2] < levels[pos+1])){ //general dec
                                 if (levels[pos-1] <= levels[pos+1]) to_rem=pos-1;
                             }

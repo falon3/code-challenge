@@ -88,6 +88,7 @@ function runAllTests(){
     });
 }
 
+// test correct output by giving filename of corrected output in reports dir
 if (require.main === module) {
     let arg = process.argv[2];
     if (arg) test_corrects(arg);
