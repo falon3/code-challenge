@@ -20,7 +20,6 @@ function is_report_safe(report, removed=null, original=null){
     let diff_fail = "do not differ by at least one and at most three";
     let levelstrings = report.split(" ");
     let levels = levelstrings.map(Number);
-    //if (removed) console.log("trying ", levels, " with removed ", removed);
     for (const [pos, cur_level] of levels.entries()) {
         if (pos==0) continue;
         let at_end = (pos>=levels.length-1);
@@ -28,20 +27,23 @@ function is_report_safe(report, removed=null, original=null){
         let next_diff = at_end ? null : (levels[pos+1]- cur_level);
         if (at_end) {
             //at end if last diff good make the classification
-            if (!last_diff_good(last_diff)){ //36, 40, 42, 43
-                if (removed=== null) {
-                    removed = levels[pos];
-                    levels.splice(pos, 1);
-                    original = report;
-                    report = levels.join(" ");
+            if (!last_diff_good(last_diff)){
+                let to_rem = pos;
+                if (removed!== null) {
+                    if (removed[1]<pos){
+                        levels.splice(removed[1], 0, removed[0]); //put back
+                    }
+                    else{
+                        report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
+                        return false;
+                    }
                 }
-                else{
-                    report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
-                    return false;
-                }
+                removed = [levels[to_rem], to_rem];
+                levels.splice(to_rem, 1);
+                return is_report_safe(levels.join(" "), removed, report);
             }
             if (original=== null) original = report;
-            //console.log(report);//, " - ", original); //DEBUG correct
+            //console.log(original); //DEBUG correct
             console.log(`${original} is Safe with ${removed} removed so ${report}`);
             return true;
         }
@@ -70,7 +72,7 @@ function is_report_safe(report, removed=null, original=null){
                             }
                         }
                     }
-                    removed = levels[to_rem];
+                    removed = [levels[to_rem], to_rem];
                     levels.splice(to_rem, 1);
                     return is_report_safe(levels.join(" "), removed, report);
                 }
@@ -80,15 +82,20 @@ function is_report_safe(report, removed=null, original=null){
                 }
             }
             if (!last_diff_good(last_diff)){
-                if (removed=== null) { //3 2 3 5 7 // 4 5 9 7 3 // 5 1 2 3 4 5 //2 7 8
-                    removed = levels[pos-1];
-                    levels.splice(pos-1, 1);
-                    return is_report_safe(levels.join(" "), removed, report);
+                let to_rem = pos-1;
+                if (removed!== null) {
+                    if (removed[1]<pos){
+                        levels.splice(removed[1], 0, removed[0]); //put back
+                        to_rem = pos;
+                    }
+                    else{
+                        report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
+                        return false;
+                    }
                 }
-                else {
-                    report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
-                    return false;
-                }
+                removed = [levels[to_rem], to_rem];
+                levels.splice(to_rem, 1);
+                return is_report_safe(levels.join(" "), removed, report);
             }
         }
         //otherwise continue could be safe....
