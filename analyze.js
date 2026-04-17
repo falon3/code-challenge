@@ -97,15 +97,19 @@ function is_report_safe(report, removed=null, original=null){
 
 function analyze_reports(reports_file){
     const reports = fs.readFileSync(reports_file).toString('UTF8').split('\n');
-    const num_reports = reports.length;
+    let num_reports = reports.length;
     let safe = 0;
     let fail = 0;
-    console.log(`${num_reports} reports to analyze\n`);
+    console.log(`${num_reports} lines to analyze\n`);
     reports.forEach((report) => {
+        if (report.length==0) {
+            num_reports-=1;
+            return;
+        }
         if (is_report_safe(report)) safe+=1;
         else fail+=1;
     });
-    console.log(fail, " failed reports");
+    console.log(fail, " failed reports out of total ", num_reports);
     return safe;
 }
 
