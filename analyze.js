@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('node:path')
 const reports = path.join(__dirname, "/reports");
-const DEFAULT_REPORT = "real.txt"
+const DEFAULT_REPORT = "input.txt"
 
 function report_unsafe(report, why){
     console.log(`${report} is Unsafe because ${why}`);
