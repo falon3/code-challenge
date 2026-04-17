@@ -5,6 +5,7 @@ const DEFAULT_REPORT = "real.txt"
 
 function report_unsafe(report, why){
     console.log(`${report} is Unsafe because ${why}`);
+    return false;
 }
 
 function direction_changes(last_diff, next_diff){
@@ -14,6 +15,12 @@ function direction_changes(last_diff, next_diff){
 function last_diff_good(last_diff){
     if (Math.abs(last_diff)<1 || Math.abs(last_diff)>3) return false;
     else return true;
+}
+
+function try_with_removed(levels, to_rem, report){
+    let removed = [levels[to_rem], to_rem];
+    levels.splice(to_rem, 1);
+    return is_report_safe(levels.join(" "), removed, report);
 }
 
 function is_report_safe(report, removed=null, original=null){
@@ -26,59 +33,47 @@ function is_report_safe(report, removed=null, original=null){
         let last_diff = cur_level - levels[pos-1];
         let next_diff = at_end ? null : (levels[pos+1]- cur_level);
         if (at_end) {
-            //at end if last diff good make the classification
             if (!last_diff_good(last_diff)){
-                let to_rem = pos;
                 if (removed!== null) {
-                    if (removed[1]<pos){
-                        levels.splice(removed[1], 0, removed[0]); //put back
-                    }
-                    else{
-                        report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
-                        return false;
-                    }
+                    if (removed[1]<pos) levels.splice(removed[1], 0, removed[0]); //put back
+                    else return report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
                 }
-                removed = [levels[to_rem], to_rem];
-                levels.splice(to_rem, 1);
-                return is_report_safe(levels.join(" "), removed, report);
+                return try_with_removed(levels, pos, report);
             }
             if (original=== null) original = report;
             //console.log(original); //DEBUG correct
             console.log(`${original} is Safe with ${removed} removed so ${report}`);
             return true;
         }
-        else{ //check direction first?
+        else{ //check direction first
             if (direction_changes(last_diff,next_diff)){
                 if (removed=== null) {
                     let placement = pos < (levels.length - 1) / 2 ? -1 : 1; //first or 2nd half
                     let to_rem = pos;
                     if (placement<0){ //look ahead if safe
                         if (pos+2 < levels.length) {
-                            if ((levels[pos+2] < levels[pos+1]) && (last_diff>0) ){ //general dec
+                            if ((levels[pos+2] < levels[pos+1])){ //general dec
                                 if (levels[pos-1] <= levels[pos+1]) to_rem=pos-1;
                             }
-                            else if ((levels[pos+2] > levels[pos+1]) && last_diff<0){ //general inc
+                            else if ((levels[pos+2] > levels[pos+1])){ //general inc
                                 if (levels[pos-1] >= levels[pos+1]) to_rem=pos-1;
                             }
                         }
                     }
                     else{ //look back if safe
                         if (pos-2 >= 0) {
-                            if((levels[pos-2] < levels[pos-1]) && next_diff<0){ //gen incr
+                            if((levels[pos-2] < levels[pos-1]) ){ //gen incr
                                 if (levels[pos+1] <= levels[pos-1]) to_rem=pos+1;
                             }
-                            else if ((levels[pos-2] > levels[pos-1]) && next_diff>0){ //gen dec
+                            else if ((levels[pos-2] > levels[pos-1]) ){ //gen dec
                                 if (levels[pos+1] >= levels[pos-1]) to_rem=pos+1;
                             }
                         }
                     }
-                    removed = [levels[to_rem], to_rem];
-                    levels.splice(to_rem, 1);
-                    return is_report_safe(levels.join(" "), removed, report);
+                    return try_with_removed(levels, to_rem, report);
                 }
-                else { //put old one back take next?
-                    report_unsafe(original, `all levels are not either all increasing or all decreasing`);
-                    return false;
+                else {
+                    return report_unsafe(original, `all levels are not either all increasing or all decreasing`);
                 }
             }
             if (!last_diff_good(last_diff)){
@@ -86,16 +81,13 @@ function is_report_safe(report, removed=null, original=null){
                 if (removed!== null) {
                     if (removed[1]<pos){
                         levels.splice(removed[1], 0, removed[0]); //put back
-                        to_rem = pos;
+                        to_rem +=1;
                     }
                     else{
-                        report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
-                        return false;
+                        return report_unsafe(original, `adjacent levels ${cur_level} ${levels[pos-1]} ${diff_fail}`);
                     }
                 }
-                removed = [levels[to_rem], to_rem];
-                levels.splice(to_rem, 1);
-                return is_report_safe(levels.join(" "), removed, report);
+                return try_with_removed(levels, to_rem, report);
             }
         }
         //otherwise continue could be safe....
